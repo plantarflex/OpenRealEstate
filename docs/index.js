@@ -11,7 +11,7 @@ const renderBjdData = (map) => {
     const polygon = new kakao.maps.Polygon({
       map: map,
       path: path,
-      strokeWeight: 1,
+      strokeWeight: 2,
       strokeColor: "red",
       strokeOpacity: 0.8,
       fillColor: "transparent",
