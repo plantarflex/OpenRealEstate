@@ -17,32 +17,45 @@ const renderBjdData = (map) => {
       fillColor: "transparent",
       fillOpacity: 0.7,
     })
-    const content = document.createElement("div")
-    content.style = "background: white; color:black;"
-    content.innerText =
-      data.properties.EMD_NM + "(" + data.properties.EMD_CD + ")"
-    content.addEventListener("click", function () {
-      const panel = document.getElementById("panel")
-      const container = document.createElement("div")
-      const textBox = document.createElement("div")
-      const deleter = document.createElement("button")
-      container.appendChild(textBox)
-      container.appendChild(deleter)
-      container.style = "display: flex; justify-content: space-around;"
-      textBox.innerText =
+    const createOverlayContent = () => {
+      const content = document.createElement("div")
+      content.style = "background: white; color:black;"
+      content.innerText =
         data.properties.EMD_NM + "(" + data.properties.EMD_CD + ")"
-      deleter.innerText = "X"
-      deleter.style = "user-select: none;"
-      deleter.addEventListener("click", () => {
-        panel.removeChild(container)
-      })
-      panel.appendChild(container)
-    })
-    kakao.maps.event.addListener(polygon, "mouseover", function (mouseEvent) {
+      const createPanelContainer = () => {
+        const panel = document.getElementById("panel")
+        const oldContainer = document.getElementById(data.properties.EMD_CD)
+        if (oldContainer) {
+          panel.removeChild(oldContainer)
+        }
+        const container = document.createElement("div")
+        const textBox = document.createElement("div")
+        const deleter = document.createElement("button")
+        container.id = data.properties.EMD_CD
+        container.appendChild(textBox)
+        container.appendChild(deleter)
+        container.style = "display: flex; justify-content: space-around;"
+        textBox.innerText =
+          data.properties.EMD_NM + "(" + data.properties.EMD_CD + ")"
+        deleter.innerText = "X"
+        deleter.style = "user-select: none;"
+        deleter.addEventListener("click", () => {
+          panel.removeChild(container)
+        })
+        panel.appendChild(container)
+      }
+      content.addEventListener("click", createPanelContainer)
+      return content
+    }
+    const content = createOverlayContent()
+    const addOverlay = (mouseEvent) => {
       customOverlay.setContent(content)
       customOverlay.clickable = false
       customOverlay.setPosition(mouseEvent.latLng)
       customOverlay.setMap(map)
+    }
+    kakao.maps.event.addListener(polygon, "mouseover", function (mouseEvent) {
+      addOverlay(mouseEvent)
     })
     kakao.maps.event.addListener(polygon, "mousemove", function (mouseEvent) {
       customOverlay.setPosition(mouseEvent.latLng)
