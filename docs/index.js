@@ -1,6 +1,5 @@
 const { kakao } = window
 var map
-console.log(kakao)
 
 const renderBjdData = (map) => {
   const customOverlay = new kakao.maps.CustomOverlay({})
@@ -18,15 +17,30 @@ const renderBjdData = (map) => {
       fillColor: "transparent",
       fillOpacity: 0.7,
     })
+    const content = document.createElement("div")
+    content.style = "background: white; color:black;"
+    content.innerText =
+      data.properties.EMD_NM + "(" + data.properties.EMD_CD + ")"
+    content.addEventListener("click", function () {
+      const panel = document.getElementById("panel")
+      const container = document.createElement("div")
+      const textBox = document.createElement("div")
+      const deleter = document.createElement("button")
+      container.appendChild(textBox)
+      container.appendChild(deleter)
+      container.style = "display: flex; justify-content: space-around;"
+      textBox.innerText =
+        data.properties.EMD_NM + "(" + data.properties.EMD_CD + ")"
+      deleter.innerText = "X"
+      deleter.style = "user-select: none;"
+      deleter.addEventListener("click", () => {
+        panel.removeChild(container)
+      })
+      panel.appendChild(container)
+    })
     kakao.maps.event.addListener(polygon, "mouseover", function (mouseEvent) {
-      customOverlay.setContent(
-        '<div class="area"><b style="color:black;">' +
-          data.properties.EMD_NM +
-          "(" +
-          data.properties.EMD_CD +
-          ")" +
-          "</b></div>",
-      )
+      customOverlay.setContent(content)
+      customOverlay.clickable = false
       customOverlay.setPosition(mouseEvent.latLng)
       customOverlay.setMap(map)
     })
@@ -57,18 +71,15 @@ const renderRoneData = () => {
       content: '<b style="color:blue;">' + d.name + "</b>",
     })
     infowindow.open(map)
-    kakao.maps.event.addListener(polygon, "click", function (mouseEvent) {
-      console.log(d.name)
-    })
   })
 }
 
-const panMap = ({ y, x }) => {
-  const nextPos = new kakao.maps.LatLng(y, x)
-  map.panTo(nextPos)
-}
-
 function init() {
+  const panel = document.getElementById("panel")
+  const resetButton = document.getElementById("resetButton")
+  resetButton.addEventListener("click", () => {
+    panel.innerHTML = ""
+  })
   const defaultPosition = {
     y: 37.57319,
     x: 126.96658,
@@ -78,7 +89,6 @@ function init() {
     level: 3,
   })
   map.addOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT)
-  panMap(defaultPosition)
   renderRoneData(map)
   renderBjdData(map)
 }
